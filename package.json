@@ -1,0 +1,23 @@
+{
+	"name": "infosec-qa",
+	"author": "josephttran",
+	"version": "0.0.1",
+	"description": "FCC-Advanced-Node-and-Express",
+	"main": "server.js",
+	"scripts": {
+		"start": "node server.js",
+		"startDev": "nodemon server.js"
+	},
+	"dependencies": {
+		"body-parser": "^1.18.3",
+		"express": "^4.16.4"
+	},
+	"keywords": [
+		"node",
+		"express"
+	],
+	"license": "MIT",
+	"devDependencies": {
+		"nodemon": "^1.18.8"
+	}
+}
