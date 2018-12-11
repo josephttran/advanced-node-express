@@ -3,6 +3,7 @@
 const express     = require('express');
 const bodyParser  = require('body-parser');
 const path        = require('path');
+require('dotenv').config();
 const fccTesting  = require('./freeCodeCamp/fcctesting.js');
 
 const app = express();
