@@ -41,7 +41,13 @@ mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, client) => 
     console.log('Successful database connection');
 
     const db = client.db(process.env.DBName);
-
+    
+    function ensureAuthenticated(req, res, next) {
+      if (req.isAuthenticated()) {
+        return next();
+      }
+      res.redirect('/');
+    }
     passport.serializeUser((user, done) => {
       done(null, user._id);
     })
@@ -66,12 +72,17 @@ mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, client) => 
         });
       })
     );
+    
+    app.route('/profile')
+      .get(ensureAuthenticated, (req, res) => {
+      res.render('profile');
+    });
 
     app.post('/login', 
       passport.authenticate('local', { failureRedirect: '/' }), 
       (req, res) => { res.redirect('/profile');}
     );
-    
+
     app.listen(process.env.PORT || 3000, () => {
       let port = process.env.PORT ? process.env.PORT : 3000;
       console.log("Listening on port " + port);
