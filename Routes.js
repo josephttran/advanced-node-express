@@ -8,14 +8,22 @@ module.exports = function(app, db) {
     }
     res.redirect('/');
   }
-  
+
   app.get('/', (req, res) => {
-    res.render('index', {title: 'Hello', message: 'Please login', showLogin: true, showRegistration: true});
+    res.render('index', 
+        { 
+          title: 'Hello', 
+          message: 'Please login', 
+          showLogin: true, 
+          showRegistration: true, 
+          showSocialLogin: true
+        }
+    );
   });
 
   app.route('/profile')
       .get(ensureAuthenticated, (req, res) => {
-      res.render(process.cwd() + '/views/pug/profile', { username: req.user.username});
+      res.render(process.cwd() + '/views/pug/profile', { user: req.user, username: req.user.username});
     });
 
     app.route('/register')

@@ -14,8 +14,6 @@ html
     | #{title}
     p#pug-variable= message
     
-    
-    
     if showLogin
       hr
       p Login Form
@@ -29,6 +27,12 @@ html
         div
           input(type='submit', value='Log In')
           
+    if showSocialLogin
+      hr
+      h2 Social Login
+      .login
+        a(href='/auth/github') Login with Github!
+
     if showRegistration
       hr
       p Registration Form
@@ -41,7 +45,7 @@ html
           input(type='password', name='password')
         div
           input(type='submit', value='Register')
-      
+
         
     script(src='https://code.jquery.com/jquery-2.2.1.min.js', integrity='sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00=', crossorigin='anonymous')
     script(src='/public/client.js')

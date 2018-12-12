@@ -25,7 +25,7 @@ module.exports = function(app, db) {
       }
     );
   })
-
+ 
   passport.use(new LocalStrategy(
     function(username, password, done) {
       db.collection('users').findOne({ username: username }, function (err, user) {
