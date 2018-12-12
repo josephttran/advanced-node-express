@@ -9,6 +9,7 @@
 		"startDev": "nodemon server.js"
 	},
 	"dependencies": {
+		"bcrypt": "^3.0.2",
 		"body-parser": "^1.18.3",
 		"dotenv": "^6.2.0",
 		"express": "^4.16.4",

@@ -1,13 +1,14 @@
 'use strict';
 
-const express     = require('express');
-const bodyParser  = require('body-parser');
-const path        = require('path');
-const passport    = require('passport');
+const express       = require('express');
+const bodyParser    = require('body-parser');
+const path          = require('path');
+const passport      = require('passport');
 const LocalStrategy = require('passport-local');
-const session     = require('express-session');
-const mongo       = require('mongodb').MongoClient;
-const ObjectID    = require('mongodb').ObjectID;
+const session       = require('express-session');
+const mongo         = require('mongodb').MongoClient;
+const ObjectID      = require('mongodb').ObjectID;
+const bcrypt        = require('bcrypt');
 require('dotenv').config();
 const fccTesting  = require('./freeCodeCamp/fcctesting.js');
 
@@ -67,7 +68,7 @@ mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, client) => 
           console.log(`User ${username} attempted to log in.`);
           if (err) return done(err);
           if (!user) return done(null, false, );
-          if (password !== user.password) return done(null, false);
+          if (!bcrypt.compareSync(password, user.password)) return done(null, false);
           return done(null, user);
         });
       })
@@ -86,9 +87,11 @@ mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, client) => 
               } else if (user) {
                   res.redirect('/');
               } else {
+                  var hash = bcrypt.hashSync(req.body.password, 12);
+
                   db.collection('users').insertOne(
                     {username: req.body.username,
-                    password: req.body.password},
+                     password: hash},
                     (err, doc) => {
                         if(err) {
                             res.redirect('/');
@@ -104,7 +107,7 @@ mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, client) => 
             res.redirect('/profile');
         }
     );
-    
+
     app.post('/login', 
       passport.authenticate('local', { failureRedirect: '/' }), 
       (req, res) => { res.redirect('/profile');}
