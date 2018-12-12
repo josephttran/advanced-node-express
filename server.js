@@ -4,6 +4,7 @@ const express     = require('express');
 const bodyParser  = require('body-parser');
 const path        = require('path');
 const passport    = require('passport');
+const LocalStrategy = require('passport-local');
 const session     = require('express-session');
 const mongo       = require('mongodb').MongoClient;
 const ObjectID    = require('mongodb').ObjectID;
@@ -30,14 +31,16 @@ app.set('views', path.join(__dirname, './views/pug'));
 app.set('view engine', 'pug');
 
 app.get('/', (req, res) => {
-  res.render('index', {title: 'Hello', message: 'Please login'});
+  res.render('index', {title: 'Hello', message: 'Please login', showLogin: true});
 });
 
-mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, db) => {
+mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, client) => {
   if (err) {
     console.log(`Database error: ${err}`);
   } else {
     console.log('Successful database connection');
+
+    const db = client.db(process.env.DBName);
 
     passport.serializeUser((user, done) => {
       done(null, user._id);
@@ -52,6 +55,23 @@ mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, db) => {
       );
     })
 
+    passport.use(new LocalStrategy(
+      function(username, password, done) {
+        db.collection('users').findOne({ username: username }, function (err, user) {
+          console.log(`User ${username} attempted to log in.`);
+          if (err) return done(err);
+          if (!user) return done(null, false, );
+          if (password !== user.password) return done(null, false);
+          return done(null, user);
+        });
+      })
+    );
+
+    app.post('/login', 
+      passport.authenticate('local', { failureRedirect: '/' }), 
+      (req, res) => { res.redirect('/profile');}
+    );
+    
     app.listen(process.env.PORT || 3000, () => {
       let port = process.env.PORT ? process.env.PORT : 3000;
       console.log("Listening on port " + port);
