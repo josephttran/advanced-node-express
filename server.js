@@ -1,15 +1,17 @@
 'use strict';
 
-const express        = require('express');
-const bodyParser     = require('body-parser');
-const path           = require('path');
-const mongo          = require('mongodb').MongoClient;
+const express    = require('express');
+const bodyParser = require('body-parser');
+const path       = require('path');
+const mongo      = require('mongodb').MongoClient;
 require('dotenv').config();
-const routes     = require('./Routes.js');
+const routes     = require('./routes/Routes.js');
 const auth       = require('./auth/Auth');
 const fccTesting = require('./freeCodeCamp/fcctesting.js');
 
-const app = express();
+const app  = express();
+const http = require('http').Server(app);
+const io   = require('socket.io')(http);
 
 fccTesting(app); //For FCC testing purposes
 
@@ -31,13 +33,11 @@ mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, client) => 
     auth(app, db);
     routes(app, db);
 
-    app.use((req, res, next) => {
-      res.status(404)
-         .type('text')
-         .send('Not Found');
+    io.on('connection', function(socket) {
+      console.log('A user has connected');
     });
 
-    app.listen(process.env.PORT || 3000, () => {
+    http.listen(process.env.PORT || 3000, () => {
       let port = process.env.PORT ? process.env.PORT : 3000;
       console.log("Listening on port " + port);
     });

@@ -12,7 +12,7 @@ module.exports = function(app, db) {
   app.get('/', (req, res) => {
     res.render('index', 
         { 
-          title: 'Hello', 
+          title: 'Socket.IO Chat Room', 
           message: 'Please login', 
           showLogin: false, 
           showRegistration: false, 
@@ -26,8 +26,13 @@ module.exports = function(app, db) {
   app.get('/auth/github/callback', passport.authenticate(
       'github', 
       { failureRedirect: '/' }), 
-      (req, res) => { res.redirect('/profile') }
+      (req, res) => { res.redirect('/chat') }
   );
+
+  app.get('/chat', ensureAuthenticated, (req, res) => {
+    console.log(req.session);
+    res.render('chat', {user: req.user});
+  });
 
   app.get('/profile', ensureAuthenticated, (req, res) => {
       res.render(process.cwd() + '/views/pug/profile', 
@@ -71,4 +76,10 @@ module.exports = function(app, db) {
     passport.authenticate('local', { failureRedirect: '/' }),
     (req, res, next) => { res.redirect('/profile') }
   );
+
+  app.use((req, res, next) => {
+    res.status(404)
+       .type('text')
+       .send('Not Found');
+  });
 }
