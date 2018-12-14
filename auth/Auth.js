@@ -1,12 +1,16 @@
-const session       = require('express-session');
-const passport      = require('passport');
-const LocalStrategy = require('passport-local');
+const session        = require('express-session');
+const MongoStore     = require('connect-mongo')(session);
+const sessionStore   = new MongoStore({url: process.env.DATABASE});
+const passport       = require('passport');
+const LocalStrategy  = require('passport-local');
 const GitHubStrategy = require('passport-github').Strategy
-const bcrypt        = require('bcrypt');
+const bcrypt         = require('bcrypt');
 
 module.exports = function(app, db) {
   app.use(session({
+    key: 'express.sid',
     secret: process.env.SESSION_SECRET,
+    store: sessionStore, 
     resave: true,
     saveUninitialized: true
   }));

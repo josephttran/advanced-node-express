@@ -12,6 +12,11 @@ const fccTesting = require('./freeCodeCamp/fcctesting.js');
 const app  = express();
 const http = require('http').Server(app);
 const io   = require('socket.io')(http);
+const passportSocketIo = require('passport.socketio');
+const cookieParser     = require('cookie-parser');
+const session          = require('express-session');
+const MongoStore       = require('connect-mongo')(session);
+const sessionStore     = new MongoStore({url: process.env.DATABASE});
 
 fccTesting(app); //For FCC testing purposes
 
@@ -34,13 +39,21 @@ mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, client) => 
     routes(app, db);
 
     let currentUsers = 0;
+
+    io.use(passportSocketIo.authorize({
+      cookieParser: cookieParser,
+      key: 'express.sid',
+      secret: process.env.SESSION_SECRET,
+      store: sessionStore
+    }));
+
     io.on('connection', function(socket) {
-      console.log('A user has connected');
+      console.log(`user ${socket.request.user.name} connected`);
       ++currentUsers;
       io.emit('user count', currentUsers);
 
       socket.on('disconnect', () => {
-        console.log('A user has disconnected');
+        console.log(`${socket.request.user.name} has disconnected`);
         --currentUsers;
         io.emit('user count', currentUsers);
       });
