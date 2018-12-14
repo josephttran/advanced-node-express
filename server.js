@@ -50,12 +50,22 @@ mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, client) => 
     io.on('connection', function(socket) {
       console.log(`user ${socket.request.user.name} connected`);
       ++currentUsers;
-      io.emit('user count', currentUsers);
+      io.emit('user', 
+          { name: socket.request.user.name, 
+            currentUsers, 
+            connected: true
+          }
+      );
 
       socket.on('disconnect', () => {
         console.log(`${socket.request.user.name} has disconnected`);
         --currentUsers;
-        io.emit('user count', currentUsers);
+        io.emit('user', 
+            { name: socket.request.user.name, 
+              currentUsers, 
+              connected: false
+            }
+        );;
       });
     });
 
