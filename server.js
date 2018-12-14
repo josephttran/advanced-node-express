@@ -57,6 +57,10 @@ mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, client) => 
           }
       );
 
+      socket.on('chat message', function(msg) {
+        io.emit('chat message', { name: socket.request.user.name, message: msg });
+      }); 
+
       socket.on('disconnect', () => {
         console.log(`${socket.request.user.name} has disconnected`);
         --currentUsers;
@@ -67,6 +71,8 @@ mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, client) => 
             }
         );;
       });
+
+ 
     });
 
     http.listen(process.env.PORT || 3000, () => {
