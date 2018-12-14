@@ -33,8 +33,12 @@ mongo.connect(process.env.DATABASE, { useNewUrlParser: true }, (err, client) => 
     auth(app, db);
     routes(app, db);
 
+    let currentUsers = 0;
     io.on('connection', function(socket) {
       console.log('A user has connected');
+
+      ++currentUsers;
+      io.emit('user count', currentUsers);
     });
 
     http.listen(process.env.PORT || 3000, () => {
